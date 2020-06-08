@@ -1,0 +1,16 @@
+{
+  "name": "html5-demo",
+  "version": "0.0.1",
+  "description": "A demo of html5 features",
+  "main": "figlet.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "figlet": "^1.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jermaine Francoeur",
+  "license": "ISC"
+}
