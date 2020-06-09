@@ -1,7 +1,15 @@
 {
 	"folders": [
 		{
+			"name": "LifeEvents",
+			"path": "..\\..\\..\\Projects\\LifeEvents"
+		},
+		{
+			"name": "HTML5Demo",
 			"path": "HTML5Demo"
+		},
+		{
+			"path": "HTML5 Notes"
 		}
 	]
 }

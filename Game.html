@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+
+      body {
+        background-color: #333;
+        overflow: hidden;
+      }
+
+      .sprite {
+        position: absolute;
+        display: inline-block;
+        box-sizing: border-box;
+        border-radius: 40px;
+        background: orange;
+      }
+
+      .msg {
+        text-align: center;
+        padding: 5px;
+        border-radius: 10px;
+        border: 2px solid dodgerblue;
+        background-color: cornsilk;
+        transition: 2s opacity;
+        opacity: 1;
+      }
+
+      .sprite .msg {
+        opacity: 0;
+      }
+
+      .teacher {
+        border: 3px solid green;
+        background: url(GamePics/teacher.jpg);
+      }
+
+      .aaron {
+        /* background: url(GamePics/aaron.png); */
+      }
+      .andrei {
+        /* background: url(GamePics/andrei.png); */
+      }
+      .chelsey {
+        /* background: url(GamePics/chelsey.png); */
+      }
+      .hannah {
+        background: url(GamePics/hannah.png);
+      }
+      .joy {
+        background: url(GamePics/joy.png);
+      }
+      .spencer {
+        background: url(GamePics/spencer.png);
+      }
+
+      .brain {
+        background: url(GamePics/brain.png);
+      }
+
+      #gameStatus {
+        position: fixed;
+        padding: 10px;
+        opacity: 0.6;
+        color: white;
+        background-color: black;
+        top: 0;
+        right: 0;
+        text-align: left;
+      }
+
+      .sprite {
+        transition: left 0.05s, top 0.05s;
+        background-size: cover;
+      }
+    </style>
+    <script>
+      // --- Setup the Game ---
+      //-----------------------
+      document.addEventListener("DOMContentLoaded", function(event) {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        setupActors();
+        intervalHandle = setInterval(update, 50);
+      });
+
+      document.addEventListener("keydown", keyboardHandler);
+      document.addEventListener("keyup", keyboardHandler);
+
+      function keyboardHandler(event) {
+        if (event.ctrlKey && event.key == "r") return;
+        event.preventDefault();
+        event.stopPropagation();
+        // Keydown -> pressed = true
+        // Keyup   -> pressed = false
+        var pressed = event.type == "keydown";
+        switch (event.keyCode) {
+          case 38: // up
+          case 87: // w
+            keyboard.up = pressed;
+            break;
+          case 40: // down
+          case 83: // s
+            keyboard.down = pressed;
+            break;
+          case 37: // left
+          case 65: // a
+            keyboard.left = pressed;
+            break;
+          case 39: // right
+          case 68: // d
+            keyboard.right = pressed;
+            break;
+        }
+      }
+
+      function status(msg) {
+        document.getElementById("gameStatus").innerText = msg;
+      }
+
+      function setupActors() {
+        teacher = {
+          // <----------------------------------------------- TEACHER
+          x: 0,
+          y: 0,
+          v: 0,
+          thet: 0,
+          w: 40,
+          h: 40,
+          tag: document.getElementsByClassName("teacher")[0],
+          update() {
+            this.v *= 0.9;
+            var vx = this.v * Math.cos(this.thet);
+            var vy = this.v * Math.sin(this.thet);
+            if (keyboard.up) vy -= TEA_ACCEL;
+            if (keyboard.down) vy += TEA_ACCEL;
+            if (keyboard.left) vx -= TEA_ACCEL;
+            if (keyboard.right) vx += TEA_ACCEL;
+
+            this.v = Math.sqrt(vx * vx + vy * vy);
+            this.thet = Math.atan2(vy, vx);
+            moveActor(this, TEA_MAX_V);
+          }
+        };
+        actors.push(teacher);
+        brain = {
+          // <----------------------------------------------- TEACHER
+          x: 0,
+          y: 0,
+          v: 0,
+          thet: 0,
+          w: 25,
+          h: 25,
+          tag: document.getElementsByClassName("brain")[0],
+          update() {
+            moveActor(this, 0);
+          }
+        };
+        actors.push(brain);
+        var studentTags = document.getElementsByClassName("student");
+        for (var i = 0; i < studentTags.length; i++) {
+          var newStudent = {
+            // <------------------------------------- STUDENT
+            x: 0,
+            y: 0,
+            v: 0,
+            thet: 0,
+            w: 40,
+            h: 40,
+            hasQuestion: false,
+            update() {
+              if (!this.hasQuestion) {
+                if (Math.random() < 0.01) this.hasQuestion = true;
+              }
+              if (this.hasQuestion) this.chaseTeacher();
+              else this.wander();
+              moveActor(this, STU_MAX_V);
+            },
+            chaseTeacher() {
+              var vx = Math.cos(this.thet) * (this.v + STU_ACCEL);
+              var vy = Math.sin(this.thet) * (this.v + STU_ACCEL);
+              var dx = teacher.x - this.x;
+              var dy = teacher.y - this.y;
+              var d = Math.sqrt(dx * dx + dy * dy);
+              var thet = Math.atan2(dy, dx);
+
+              vx += (dx / d) * STU_ACCEL;
+              vy += (dy / d) * STU_ACCEL;
+
+              this.v = Math.sqrt(vx * vx + vy * vy);
+              this.thet = Math.atan2(vy, vx) + (Math.random() - 0.5);
+            },
+            wander() {
+              this.v = 0.9 * this.v + (Math.random() - 0.5) * STU_MAX_V;
+              this.thet += Math.random() - 0.5;
+            },
+            tag: studentTags[i]
+          };
+          students.push(newStudent);
+          actors.push(newStudent);
+          resetGame();
+        }
+        for (var a of actors) {
+          a.tag.style.width = a.w + "px";
+          a.tag.style.height = a.h + "px";
+        }
+      }
+
+      function collision(a1, a2) {
+        var dx = Math.abs(a1.x - a2.x);
+        var dy = Math.abs(a1.y - a2.y);
+        return dx < (a1.w + a2.w) / 2 && dy < (a1.h + a2.h) / 2;
+      }
+
+      function randomLocation(actor) {
+        actor.x = Math.random() * w;
+        actor.y = Math.random() * h;
+      }
+
+      function moveActor(actor, maxV) {
+        var scaleSpeed = actor.v / maxV;
+        if (scaleSpeed > 1) {
+          actor.v /= scaleSpeed;
+        }
+        actor.x += actor.v * Math.cos(actor.thet);
+        actor.y += actor.v * Math.sin(actor.thet);
+        if (actor.x < 0) {
+          actor.x = 0;
+        }
+        if (actor.y < 0) {
+          actor.y = 0;
+        }
+        if (actor.x > w - actor.w) {
+          actor.x = w - actor.w;
+        }
+        if (actor.y > h - actor.h) {
+          actor.y = h - actor.h;
+        }
+        actor.tag.style.left = actor.x + "px";
+        actor.tag.style.top = actor.y + "px";
+      }
+
+      function resetGame() {
+        coffee = 3;
+        answers = 3;
+        do {
+          randomLocation(teacher);
+        } while (teacher.x > w / 2);
+        do {
+          randomLocation(brain);
+        } while (brain.x < w / 2);
+        for (var s of students) {
+          do {
+            randomLocation(s);
+          } while (s.x < w / 2);
+        }
+      }
+
+      // ------ THE GAME ------
+      // ----------------------
+
+      const STU_ACCEL = 5;
+      const STU_MAX_V = 10;
+      const TEA_ACCEL = 5;
+      const TEA_MAX_V = 15;
+
+      var actors = [];
+      var teacher;
+      var brain;
+      var students = [];
+      var w, h;
+      var keyboard = {
+        up: false,
+        down: false,
+        left: false,
+        right: false
+      };
+
+      var coffee = 3;
+      var answers = 3;
+
+      function start() {}
+
+      function update() {
+        var startTime = performance.now();
+        for (var a of actors) a.update();
+        for (var s of students) {
+          if (s.hasQuestion && collision(s, teacher)) {
+            if (answers > 0) {
+              answers--;
+              randomLocation(s);
+              s.hasQuestion = false;
+            } else {
+              coffee--;
+              if (coffee >= 0) randomLocation(teacher);
+              else gameOver();
+            }
+          }
+        }
+        if (collision(brain, teacher)) {
+          answers++;
+          randomLocation(brain);
+        }
+
+        var runTime = performance.now() - startTime;
+        status(`
+    Coffee: ${coffee}
+    Answers: ${answers}
+    `);
+      }
+
+      function gameOver() {
+        resetGame();
+      }
+    </script>
+  </head>
+
+  <body>
+    <pre id="gameStatus"></pre>
+    <div class="sprite teacher"></div>
+    <div class="sprite student spencer"></div>
+    <div class="sprite student hannah"></div>
+    <div class="sprite student chelsey"></div>
+    <div class="sprite student andre"></div>
+    <div class="sprite student joy"></div>
+    <div class="sprite student aaron"></div>
+    <div class="sprite brain"></div>
+  </body>
+</html>
