@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <button onclick="timerPromise()">Trigger Promise</button>
+  <br>
+  <button onclick="starter()">Call Starter</button>
+  <br>
+  <button onclick="clickedAsync()">Call Async</button>
+  <script>
+
+    function clickedAsync() {
+      gonnaBeAsync()
+      .then(() => {
+        alert("Async thing complete")
+      })
+    }
+
+    async function gonnaBeAsync() {
+      let result = await getDelayedPromise()
+      alert(result)
+    }
+
+    function getDelayedPromise() {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve("Coffee")
+        }, 500)
+      })
+    }
+
+
+
+    function starter(){
+      var w = "moo"
+      var v = "bark"
+      iDoStuff()
+      var u = "meow"
+    }
+
+    function iDoStuff(){
+      var x = 10
+      var y = x * 2
+      var z = 2 * x + y
+      return z
+    }
+
+
+    function timerPromise(){
+      var prom2 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(true)
+        }, 1500)
+      }).then(isLoggedIn => {
+        if (isLoggedIn) {
+          return "You have logged in"
+        } else {
+          throw new Error("Something else...")
+        }
+      }).then(msg => {
+
+        var delayedPromise = new Promise((resolve, reject)=>{
+          setTimeout(() => {
+            alert("Phase 2 complete: " + msg)
+            resolve("All phases complete")
+          }, 1500)
+        })
+
+        return delayedPromise
+      }).catch(error => {
+        alert(error)
+        console.log(error)
+      }).then(result => {
+        alert(result)
+      })
+      alert("end of click")
+    }
+
+
+    function clickedTimerAsync() {
+      timerAsync()
+      .then(result => {
+        console.log("RESULT:" + result)
+      })
+    }
+
+    async function otherAsync() {
+      let result = await timerAsync()
+      console.log(result)
+    }
+
+    async function timerAsync(){
+      var prom3 = await getDelayedPromise()
+      try {
+        if (prom3 == "coffee") {
+          await getDelayedPromise()
+          console.log("Phase 2 complete: Hello world")
+          return "All phases complete"
+        } else {
+          throw new Error("Something went wrong")
+        }
+      }catch(error) {
+        return "Something went wrong, the message was: " + error
+      }      
+    }
+
+
+  </script>
+</body>
+</html>
