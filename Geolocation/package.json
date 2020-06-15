@@ -1,0 +1,15 @@
+{
+  "name": "geolocation-example",
+  "version": "1.0.0",
+  "description": "Example of using geolocation",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon --inspect",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jermaine Francoeur",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

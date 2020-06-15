@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <video src="bbb.mp4" loop>You do not support video</video>
+  <button onclick="playVideo()">Play</button>
+  <button onclick="pauseVideo()">Pause</button>
+  <button onclick="toBeginning()">To Beginning</button>
+  <button onclick="toMiddle()">To Half-Way</button>
+  <script>
+    var vid = document.getElementsByTagName('video')[0]
+
+    function playVideo(){
+      vid.play()
+    }
+    function pauseVideo(){
+      vid.pause()
+    }
+    function toBeginning(){
+      vid.currentTime = 0
+    }
+    function toMiddle(){
+      vid.currentTime = vid.duration / 2
+    }
+
+  </script>
+</body>
+</html>
