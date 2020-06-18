@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <input onkeydown="keyPressed(event)" />
+  <ul id="list"></ul>
+
+  <script>
+
+    var myList = []
+
+    if(localStorage["mySavedList"]) {
+      myList = JSON.parse(localStorage["mySavedList"])
+      refreshList()
+    }
+
+    function keyPressed(event) {
+      if(event.keyCode == 13) {
+        myList.push(event.target.value)
+        localStorage["mySavedList"] = JSON.stringify(myList)
+        event.target.value = ""
+        refreshList()
+      }
+    }
+
+    function refreshList() {
+      var ul = document.getElementById('list')
+      ul.innerHTML = ""
+      for(var el of myList) {
+        var newLi = document.createElement('li')
+        newLi.innerText = el
+        ul.appendChild(newLi)
+      }
+    }
+  </script>
+</body>
+</html>

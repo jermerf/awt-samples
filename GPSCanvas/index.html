@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js" integrity="sha256-ngFW3UnAN0Tnm76mDuu7uUtYEcG3G5H1+zioJw3t+68=" crossorigin="anonymous"></script>
+  <style>
+    canvas {
+      border: 2px solid green;
+    }
+    input {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <canvas ref="canvas" width="500" height="500"></canvas>
+    <div>
+      {{(currentLocation ? gpsToCanvas(currentLocation) : "")}}
+    </div>
+    <div>        
+      <input type="range" v-model="scale" min="1" max="1000">{{scale}}
+    </div>
+    <div>
+      <input type="range" v-model="offsetX" min="-1000" max="1000">{{offsetX}}
+    </div>
+    <div>
+      <input type="range" v-model="offsetY" min="-1000" max="1000">{{offsetY}}
+    </div>
+  </div>
+<script>
+
+let app = new Vue({
+  el: "#app",
+  data: {
+    offsetX: 0,
+    offsetY: 0,
+    scale: 200,
+    pen: null,
+    prevLocation: null,
+    currentLocation: null,
+  },
+  computed: {
+    scaledX() { return this.offsetX/10 * this.scale },
+    scaledY() { return this.offsetY/10 * this.scale },
+  },
+  methods: {
+    gotLocation(position) {
+      let lat = position.coords.latitude
+      let lon = position.coords.longitude
+      this.currentLocation = { lat, lon }
+    },
+    gpsToCanvas(location) {
+      return {
+        x: this.scale*location.lon + parseInt(this.scaledX),
+        y: this.scale*location.lat + parseInt(this.scaledY)
+      }
+    }
+  },
+  watch: {
+    currentLocation(val, oldVal) {
+      this.prevLocation = oldVal
+      if (!this.prevLocation) return
+      let p1 = this.gpsToCanvas(this.prevLocation)
+      let p2 = this.gpsToCanvas(this.currentLocation)
+      this.pen.beginPath()
+      this.pen.moveTo(p1.x, p1.y)
+      this.pen.lineTo(p2.x, p2.y)
+      this.pen.stroke()
+      // console.log("Line drawn in the sand", JSON.stringify({p1,p2}))
+    }
+  },
+  mounted(){
+    this.pen = this.$refs.canvas.getContext('2d')
+    // navigator.geolocation.watchPosition(this.gotLocation)
+    getFakeGpsCoords(this.gotLocation)
+  }
+})
+
+var fakeIndex = 0
+var fakeGpsCoords = []
+var fakeGpsCallback
+function getFakeGpsCoords(callback) {
+  fakeGpsCallback = callback
+  var xhr = new XMLHttpRequest()
+  xhr.open("GET", "/gps.json")
+  xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      fakeGpsCoords = JSON.parse(this.responseText)
+      setInterval(sendFakeCoords, 100)
+    }
+};
+  xhr.send()
+}
+
+function sendFakeCoords(callback) {
+  fakeGpsCallback({
+    coords: {
+      latitude: fakeGpsCoords[fakeIndex].lat,
+      longitude: fakeGpsCoords[fakeIndex].lon
+    }
+  })
+  fakeIndex++
+}
+
+
+
+
+</script>
+
+</body>
+</html>

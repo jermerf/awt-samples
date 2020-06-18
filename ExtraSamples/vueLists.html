@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js" integrity="sha256-ngFW3UnAN0Tnm76mDuu7uUtYEcG3G5H1+zioJw3t+68=" crossorigin="anonymous"></script>
+  <style>
+    .thick-border{
+      border: 5px solid #333;
+      margin: 5px;
+    }
+    .posting {
+      position: relative;
+      border: 1px solid grey;
+      margin: 5px;
+      padding: 10px;
+    }
+    h4 {
+      margin: 5px;
+    }
+    button.deleteBtn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
+    img{
+      max-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+
+    <input v-model="addForm.text" placeholder="some words" ref="firstInput"/>
+    <input v-model="addForm.url" placeholder="image url"/>
+    <input v-model="addForm.color" type="color"/>
+    <button @click="addNote">Add</button>
+
+<!-- 
+    <div class="thick-border">
+      <h2>List Notes</h2>
+      v-for duplicates the div based on notes
+      <div class="posting" v-for="(note, index) in notes" :key="index"  :style="{ backgroundColor: note.color }">
+        <h4>{{note.text}}</h4>
+        <img :src="note.image" />
+        <button @click="removeNote(index)" class="deleteBtn">X</button>
+      </div>
+    </div>
+  -->
+    <!-- uncomment me for reversed notes -->
+
+      <div class="thick-border">
+        <h2>List Computed value reversedNotes, for the heck of it</h2>
+        <div class="posting" v-for="(note, index) in reversedNotes :key="index" :style="{ backgroundColor: note.color }">
+          <h4>{{note.text}}</h4>
+          <img :src="note.image" />
+          <button @click="removeNote(notes.length - index - 1)" class="deleteBtn">X</button>
+        </div>
+      </div>
+
+   
+
+  </div>
+
+  <script>
+    
+    let app = new Vue({
+      el: "#app",
+      data: {
+        addForm: {
+          text: "",
+          url: "img/default.png",
+          color: "#5678ef"
+        },
+        notes: [
+          {text: "Some words", image: "img/somepic.jpg", color: "#ee9870"},
+          {text: "More words", image: "img/otherpic.png", color: "#7e9e97"}
+        ]
+      },
+      computed: {
+        reversedNotes() { return this.notes.slice().reverse() },
+        halfNotes() { return this.notes.slice().splice(Math.floor(this.notes.length/2), this.notes.length)}
+      },
+      methods: {
+        addNote() {
+          let newNote = {
+            text: this.addForm.text,
+            image: this.addForm.url,
+            color: this.addForm.color
+          }
+          this.notes.push(newNote)
+          // Reset the form
+          this.addForm.text = ""
+          this.addForm.url = "img/default.png"
+          this.addForm.color = "#5678ef"
+          this.$refs.firstInput.focus()
+        },
+        removeNote(index) {
+          // AnyArray.splice(start index, how many to remove)
+          this.notes.splice(index, 1)
+        }
+      }
+    })
+
+  </script>
+</body>
+</html>

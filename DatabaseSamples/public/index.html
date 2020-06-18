@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js" integrity="sha256-ngFW3UnAN0Tnm76mDuu7uUtYEcG3G5H1+zioJw3t+68=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js" integrity="sha256-T/f7Sju1ZfNNfBh7skWn0idlCBcI3RwdLSS4/I7NQKQ=" crossorigin="anonymous"></script>
+  <style>
+    .posting {
+      border: 1px solid grey;
+      margin: 5px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <input v-model="title" />
+    <input v-model="content" />
+    <button @click="insertPost">Insert</button>
+    <button @click="refreshPosts">Refresh</button>
+    <div class="posting" v-for="p in posts" :key="p._id">
+      <h2>{{p.title}}</h2>
+      <div>{{p.insertedOn}}</div>
+      <p>{{p.content}}</p>
+    </div>
+  </div>
+  <script>
+    let app = new Vue({
+      el: "#app",
+      data: {
+        title: "The return of Jermerf",
+        content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium amet aliquid dolore. Veritatis dolor obcaecati voluptatum fuga, quidem aut non nihil maxime quibusdam consequatur saepe totam? Molestias nemo reprehenderit provident.",
+        posts: []
+      },
+      methods: {
+        insertPost() {
+          let data = {
+            title: this.title,
+            content: this.content
+          }
+          axios.default.post('/newPost', data)
+          .then(res => {
+            this.posts.push(res.data)
+          })
+        },
+        refreshPosts() {
+          axios.default.get('/posts')
+          .then(res => {
+            this.posts = res.data
+          })
+        }
+      }
+    })
+  </script>
+</body>
+</html>
